@@ -15,12 +15,16 @@ public class Server {
 
     final InputStream is = socket.getInputStream();
     dis = new DataInputStream(is);
+    startChat();
+  }
 
+  private void startChat() throws IOException {
     System.out.println("\nChat");
     System.out.println("――――");
 
-    readInput();
-    readInput();
+    while (true) {
+      readInput();
+    }
   }
 
   private void readInput() throws IOException {
