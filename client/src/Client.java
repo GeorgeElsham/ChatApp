@@ -6,7 +6,11 @@ public class Client {
   private final Socket client;
 
   public Client(Port port) throws IOException {
-    final String username = input("Enter username: ");
+    String username;
+    do {
+      username = input("Enter username: ");
+    } while (!username.matches("[a-zA-Z0-9]+"));
+
     client = new Socket("localhost", port.getPortNumber());
 
     if (client.isConnected()) {
@@ -14,9 +18,11 @@ public class Client {
 
       final OutputStream os = client.getOutputStream();
       final DataOutputStream dos = new DataOutputStream(os);
-      dos.writeUTF("Hello world!");
+      dos.writeUTF("username:" + username);
+      dos.writeUTF("message:Hello world!");
     } else {
       System.err.println("Failed to connect to server");
+      System.exit(ExitCodes.CONNECTION_FAILED);
     }
   }
 
