@@ -53,10 +53,12 @@ public class Server {
     switch (command) {
       case "joined" -> {
         chat.setUsername(content);
-        System.out.println(chat.getUsername() + " joined the chat");
+        final String msg = String.format("\u001B[33m%s joined the chat\u001B[0m", chat.getUsername());
+        System.out.println(msg);
       }
       case "left" -> {
-        System.out.println(chat.getUsername() + " left the chat");
+        final String msg = String.format("\u001B[33m%s left the chat\u001B[0m", chat.getUsername());
+        System.out.println(msg);
         deleteChat(chat);
       }
       case "message" -> {

@@ -27,14 +27,16 @@ public class Client {
   private void enterChat() throws IOException {
     System.out.println("\nChat");
     System.out.println("――――");
-    System.out.println(username + " (you) joined the chat");
+
+    final String msg = String.format("\u001B[33m%s joined the chat\u001B[0m", username);
+    System.out.println(msg);
     dos.writeUTF("joined:" + username);
 
     boolean inChat = true;
 
     while (inChat) {
-      final String msg = String.format("\u001B[34m%s\u001B[0m: ", username);
-      final String message = input(msg).strip();
+      final String inputMsg = String.format("\u001B[34m%s\u001B[0m: ", username);
+      final String message = input(inputMsg).strip();
 
       if (message.isEmpty()) {
         exitChat();
