@@ -54,8 +54,9 @@ public class Server {
         inChat = false;
       }
       case "message" -> {
-        final String user = username != null ? username : "anonymous";
-        final String msg = String.format("[%s]: \u001B[1m%s\u001B[0m", user, content);
+        if (username == null) return;
+
+        final String msg = String.format("\u001B[34m%s\u001B[0m: \u001B[1m%s\u001B[0m", username, content);
         System.out.println(msg);
       }
       default -> {

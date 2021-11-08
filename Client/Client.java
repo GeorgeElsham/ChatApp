@@ -33,7 +33,8 @@ public class Client {
     boolean inChat = true;
 
     while (inChat) {
-      final String message = input("").strip();
+      final String msg = String.format("\u001B[34m%s\u001B[0m: ", username);
+      final String message = input(msg).strip();
 
       if (message.isEmpty()) {
         exitChat();
