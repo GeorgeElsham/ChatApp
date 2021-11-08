@@ -1,62 +1,66 @@
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class Server {
-  private final ServerSocket server;
-  private final DataInputStream dis;
-  private String username;
-  private boolean inChat = false;
-
   public Server(Port port) throws IOException {
-    server = new ServerSocket(port.getPortNumber());
+    final ServerSocket server = new ServerSocket(port.getPortNumber());
     System.out.println("Server started on local port '" + server.getLocalPort() + "'");
-
-    final Socket socket = server.accept();
-    System.out.println("Accepted client socket");
-
-    final InputStream is = socket.getInputStream();
-    dis = new DataInputStream(is);
-    startChat();
-  }
-
-  private void startChat() throws IOException {
-    inChat = true;
     System.out.println("\nChat");
     System.out.println("――――");
 
-    while (inChat) {
-      readInput();
+    while (true) {
+      final Socket socket = server.accept();
+
+      final Thread chatThread = new Thread(() -> {
+        final Chat chat;
+        try {
+          chat = createNewChat(socket);
+          startChat(chat);
+        } catch (IOException e) {
+          e.printStackTrace();
+          System.exit(ExitCodes.IO_EXCEPTION);
+        }
+      });
+
+      chatThread.start();
     }
   }
 
-  private void readInput() throws IOException {
-    final String message = dis.readUTF();
+  private void startChat(Chat chat) throws IOException {
+    do {
+      readInput(chat);
+    } while (chat.getUsername() != null);
+  }
+
+  private void readInput(Chat chat) throws IOException {
+    final String message = chat.dis.readUTF();
     final String[] splitMessage = message.split(":", 2);
 
     if (splitMessage.length > 1) {
       final String command = splitMessage[0];
-      final String content = splitMessage[1];
-      messageReceived(command, content);
+
+      if (chat.getUsername() != null || Objects.equals(command, "joined")) {
+        final String content = splitMessage[1];
+        messageReceived(chat, command, content);
+      }
     } else {
       System.err.println("Invalid message sent to server");
     }
   }
 
-  private void messageReceived(String command, String content) {
+  private void messageReceived(Chat chat, String command, String content) {
     switch (command) {
       case "joined" -> {
-        username = content;
-        System.out.println(username + " joined the chat");
+        chat.setUsername(content);
+        System.out.println(chat.getUsername() + " joined the chat");
       }
       case "left" -> {
-        System.out.println(username + " left the chat");
-        username = null;
-        inChat = false;
+        System.out.println(chat.getUsername() + " left the chat");
+        deleteChat(chat);
       }
       case "message" -> {
-        if (username == null) return;
-
-        final String msg = String.format("\u001B[34m%s\u001B[0m: \u001B[1m%s\u001B[0m", username, content);
+        final String msg = String.format("\u001B[34m%s\u001B[0m: \u001B[1m%s\u001B[0m", chat.getUsername(), content);
         System.out.println(msg);
       }
       default -> {
@@ -64,5 +68,15 @@ public class Server {
         System.exit(1);
       }
     }
+  }
+
+  private Chat createNewChat(Socket socket) throws IOException {
+    final InputStream is = socket.getInputStream();
+    final DataInputStream dis = new DataInputStream(is);
+    return new Chat(dis);
+  }
+
+  private void deleteChat(Chat chat) {
+    chat.setUsername(null);
   }
 }
