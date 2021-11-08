@@ -15,8 +15,6 @@ public class Client {
     client = new Socket("localhost", port.getPortNumber());
 
     if (client.isConnected()) {
-      System.out.println("Connected to server as '" + username + "'");
-
       final OutputStream os = client.getOutputStream();
       dos = new DataOutputStream(os);
       enterChat();
@@ -29,12 +27,27 @@ public class Client {
   private void enterChat() throws IOException {
     System.out.println("\nChat");
     System.out.println("――――");
-    dos.writeUTF("username:" + username);
+    System.out.println(username + " (you) joined the chat");
+    dos.writeUTF("joined:" + username);
 
-    while (true) {
-      final String message = input("");
-      dos.writeUTF("message:" + message);
+    boolean inChat = true;
+
+    while (inChat) {
+      final String message = input("").strip();
+
+      if (message.isEmpty()) {
+        exitChat();
+        inChat = false;
+      } else {
+        dos.writeUTF("message:" + message);
+      }
     }
+  }
+
+  private void exitChat() throws IOException {
+    dos.writeUTF("left:" + username);
+    System.out.println("―――――――――");
+    System.out.println("\nYou have left the chat");
   }
 
   /**

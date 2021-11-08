@@ -5,6 +5,7 @@ public class Server {
   private final ServerSocket server;
   private final DataInputStream dis;
   private String username;
+  private boolean inChat = false;
 
   public Server(Port port) throws IOException {
     server = new ServerSocket(port.getPortNumber());
@@ -19,10 +20,11 @@ public class Server {
   }
 
   private void startChat() throws IOException {
+    inChat = true;
     System.out.println("\nChat");
     System.out.println("――――");
 
-    while (true) {
+    while (inChat) {
       readInput();
     }
   }
@@ -42,10 +44,18 @@ public class Server {
 
   private void messageReceived(String command, String content) {
     switch (command) {
-      case "username" -> username = content;
+      case "joined" -> {
+        username = content;
+        System.out.println(username + " joined the chat");
+      }
+      case "left" -> {
+        System.out.println(username + " left the chat");
+        username = null;
+        inChat = false;
+      }
       case "message" -> {
         final String user = username != null ? username : "anonymous";
-        final String msg = String.format("[%s]: \u001B[1m%s", user, content);
+        final String msg = String.format("[%s]: \u001B[1m%s\u001B[0m", user, content);
         System.out.println(msg);
       }
       default -> {
