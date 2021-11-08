@@ -9,7 +9,7 @@ public class ClientApp {
 
   public void run() {
     try {
-      final Client client = new Client(new Port(8000));
+      final Client client = new Client("localhost", new Port(8000));
     } catch (ConnectException connectException) {
       System.err.println(connectException.getLocalizedMessage());
     } catch (IOException e) {

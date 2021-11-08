@@ -7,12 +7,12 @@ public class Client {
   private DataOutputStream dos;
   private String username;
 
-  public Client(Port port) throws IOException {
+  public Client(String host, Port port) throws IOException {
     do {
       username = input("Enter username: ");
     } while (!username.matches("[a-zA-Z0-9]+"));
 
-    client = new Socket("localhost", port.getPortNumber());
+    client = new Socket(host, port.getPortNumber());
 
     if (client.isConnected()) {
       final OutputStream os = client.getOutputStream();
