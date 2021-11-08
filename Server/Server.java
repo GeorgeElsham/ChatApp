@@ -67,7 +67,7 @@ public class Server {
       }
       default -> {
         System.err.println("Unrecognized command '" + command + "'");
-        System.exit(1);
+        System.exit(ExitCodes.UNRECOGNIZED_COMMAND);
       }
     }
   }
